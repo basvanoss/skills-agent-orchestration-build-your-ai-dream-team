@@ -1,0 +1,44 @@
+{
+  "projects": [
+    {
+      "name": "Atlas Search",
+      "owner": "Maya Chen",
+      "status": "active",
+      "recentActivity": "Search relevance review completed yesterday",
+      "priority": "high",
+      "summary": "Improve discovery for contributors by tuning ranking signals and documenting the evaluation set."
+    },
+    {
+      "name": "Harbor Mobile",
+      "owner": "Jon Bell",
+      "status": "active",
+      "recentActivity": "iOS beta feedback triaged this morning",
+      "priority": "medium",
+      "summary": "Prepare the mobile release candidate and close the highest-impact onboarding issues."
+    },
+    {
+      "name": "Northstar Billing",
+      "owner": "Priya Nair",
+      "status": "blocked",
+      "recentActivity": "Waiting on finance approval for tax rules",
+      "priority": "high",
+      "summary": "Unblock regional billing by validating the new tax workflow with finance and support."
+    },
+    {
+      "name": "Signal Design System",
+      "owner": "Elena Ruiz",
+      "status": "planning",
+      "recentActivity": "Component audit shared with the team on Monday",
+      "priority": "medium",
+      "summary": "Create a shared component foundation so product teams can ship consistent, accessible interfaces."
+    },
+    {
+      "name": "Cedar Analytics",
+      "owner": "Owen Wright",
+      "status": "complete",
+      "recentActivity": "Dashboard handoff accepted last Friday",
+      "priority": "low",
+      "summary": "Give teams a dependable view of activation trends and the context behind weekly changes."
+    }
+  ]
+}

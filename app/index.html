@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html" aria-label="Project Pulse home">
+          <span class="brand-mark" aria-hidden="true">P</span>
+          Project Pulse
+        </a>
+        <p class="eyebrow">Team delivery overview</p>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="dashboard-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Project operations</p>
+          <h1 id="page-title">Project Pulse</h1>
+          <p class="hero-copy">A quick read on what your team is shipping, what needs attention, and where contributors can make the next useful move.</p>
+        </div>
+        <div class="dashboard-summary" aria-label="Project summary">
+          <div class="summary-item">
+            <span class="summary-value" id="project-count">-</span>
+            <span class="summary-label">Projects</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-value" id="active-count">-</span>
+            <span class="summary-label">Active</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-value" id="priority-count">-</span>
+            <span class="summary-label">High priority</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="projects-heading">
+        <div class="toolbar">
+          <h2 class="section-title" id="projects-heading">Current projects</h2>
+          <div class="filters">
+            <label for="status-filter">Filter by status</label>
+            <select class="filter-select" id="status-filter">
+              <option value="all">All projects</option>
+              <option value="active">Active</option>
+              <option value="planning">Planning</option>
+              <option value="blocked">Blocked</option>
+              <option value="complete">Complete</option>
+            </select>
+          </div>
+        </div>
+        <div id="loading-state" role="status" aria-live="polite">Loading projects...</div>
+        <div id="error-state" class="empty-state" role="alert" hidden>
+          <h3>Projects could not be loaded</h3>
+          <p>Check that the dashboard is being served and try refreshing the page.</p>
+        </div>
+        <div id="empty-state" class="empty-state" hidden>
+          <h3>No projects found</h3>
+          <p>There are no projects matching this status.</p>
+        </div>
+        <div class="project-grid" id="project-grid" aria-live="polite" aria-busy="true"></div>
+      </section>
+    </main>
+
+    <script>
+      const grid = document.querySelector("#project-grid");
+      const loadingState = document.querySelector("#loading-state");
+      const errorState = document.querySelector("#error-state");
+      const emptyState = document.querySelector("#empty-state");
+      const statusFilter = document.querySelector("#status-filter");
+      const projectCount = document.querySelector("#project-count");
+      const activeCount = document.querySelector("#active-count");
+      const priorityCount = document.querySelector("#priority-count");
+      let projects = [];
+
+      function showState(state) {
+        loadingState.hidden = state !== "loading";
+        errorState.hidden = state !== "error";
+        emptyState.hidden = state !== "empty";
+        grid.hidden = state === "loading" || state === "error" || state === "empty";
+      }
+
+      function renderSummary() {
+        projectCount.textContent = projects.length;
+        activeCount.textContent = projects.filter((project) => project.status === "active").length;
+        priorityCount.textContent = projects.filter((project) => project.priority === "high").length;
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+        card.innerHTML = `
+          <div class="project-card-header">
+            <div>
+              <h3>${project.name}</h3>
+              <p class="project-owner">Owner: ${project.owner}</p>
+            </div>
+            <span class="status-badge status-${project.status}" data-status="${project.status}">${project.status}</span>
+          </div>
+          <p class="project-summary">${project.summary}</p>
+          <div class="card-meta">
+            <span class="priority-badge priority-${project.priority}" data-priority="${project.priority}">Priority: ${project.priority}</span>
+            <p class="recent-activity"><strong>Recent activity:</strong> ${project.recentActivity}</p>
+          </div>`;
+        return card;
+      }
+
+      function renderProjects() {
+        const selectedStatus = statusFilter.value;
+        const visibleProjects = selectedStatus === "all"
+          ? projects
+          : projects.filter((project) => project.status === selectedStatus);
+        grid.replaceChildren(...visibleProjects.map(createProjectCard));
+        showState(visibleProjects.length === 0 ? "empty" : "ready");
+        grid.setAttribute("aria-busy", "false");
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed with ${response.status}`);
+          }
+          const data = await response.json();
+          if (!Array.isArray(data.projects)) {
+            throw new Error("Project data is missing its projects array");
+          }
+          projects = data.projects;
+          renderSummary();
+          renderProjects();
+        } catch (error) {
+          console.error(error);
+          grid.setAttribute("aria-busy", "false");
+          showState("error");
+        }
+      }
+
+      statusFilter.addEventListener("change", renderProjects);
+      showState("loading");
+      loadProjects();
+    </script>
+  </body>
+</html>
